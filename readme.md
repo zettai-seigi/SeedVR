@@ -14,10 +14,16 @@
       alt="SeedVR Website"
     />
   </a>
-  <a href="https://huggingface.co/models?other=seedvr">
+  <a href="https://huggingface.co/collections/ByteDance-Seed/seedvr-6849deeb461c4e425f3e6f9e">
     <img 
         src="https://img.shields.io/badge/SeedVR-Models-yellow?logo=huggingface&logoColor=yellow" 
         alt="SeedVR Models"
+    />
+  </a>
+   <a href="https://huggingface.co/spaces/ByteDance-Seed/SeedVR2-3B">
+    <img 
+        src="https://img.shields.io/badge/SeedVR2-Space-orange?logo=huggingface&logoColor=yellow" 
+        alt="SeedVR2 Space"
     />
   </a>
   <a href="https://arxiv.org/abs/2501.01320">
@@ -48,10 +54,16 @@
       alt="SeedVR Website"
     />
   </a>
-  <a href="https://huggingface.co/models?other=seedvr">
+  <a href="https://huggingface.co/collections/ByteDance-Seed/seedvr-6849deeb461c4e425f3e6f9e">
     <img 
-        src="https://img.shields.io/badge/SeedVR2-Models-yellow?logo=huggingface&logoColor=yellow" 
-        alt="SeedVR2 Models"
+        src="https://img.shields.io/badge/SeedVR-Models-yellow?logo=huggingface&logoColor=yellow" 
+        alt="SeedVR Models"
+    />
+  </a>
+   <a href="https://huggingface.co/spaces/ByteDance-Seed/SeedVR2-3B">
+    <img 
+        src="https://img.shields.io/badge/SeedVR2-Space-orange?logo=huggingface&logoColor=yellow" 
+        alt="SeedVR2 Space"
     />
   </a>
   <a href="http://arxiv.org/abs/2506.05301">
@@ -82,7 +94,7 @@ We sincerely thank all contributors from the open community for their valuable s
 
 
 ## 📮 Notice
-**Limitations:** These are the prototype models and the performance may not perfectly align with the paper. Our methods are sometimes not robust to heavy degradations and very large motions, and shares some failure cases with existing methods, e.g., fail to fully remove the degradation or simply generate unpleasing details. Moreover, due to the strong generation ability, Our methods tend to overly generate details on inputs with very light degradations, e.g., 720p AIGC videos, leading to oversharpened results occasionally.
+**Limitations:** These are the prototype models and the performance may not perfectly align with the paper. Our methods are sometimes not robust to heavy degradations and very large motions, and shares some failure cases with existing methods, e.g., fail to fully remove the degradation or simply generate unpleasing details. Moreover, due to the strong generation ability, Our methods tend to overly generate details on inputs with very light degradations, e.g., 720p AIGC videos, leading to oversharpened results occasionally (especially on small resolutions, e.g., 480p).
 
 
 ## 🔥 Quick Start
@@ -98,6 +110,12 @@ pip install flash_attn==2.5.9.post1 --no-build-isolation
 ```
 
 Install [apex](https://github.com/NVIDIA/apex).
+If you encounter problems when installing apex from source, we provide two pre-build whl here:
+- [apex-0.1-cp39-cp39-linux_x86_64.whl](https://huggingface.co/ByteDance-Seed/SeedVR2-3B/resolve/main/apex-0.1-cp39-cp39-linux_x86_64.whl): for python=3.9, torch=2.4.0, cuda=12.4
+- [apex-0.1-cp310-cp310-linux_x86_64.whl](https://huggingface.co/ByteDance-Seed/SeedVR2-3B/resolve/main/apex-0.1-cp310-cp310-linux_x86_64.whl): for python=3.10, torch=2.4.0, cuda=12.1
+```bash
+pip install apex-0.1-cp310-cp310-linux_x86_64.whl
+```
 
 To use color fix, put the file [color_fix.py](https://github.com/pkuliyi2015/sd-webui-stablesr/blob/master/srmodule/colorfix.py) to `./projects/video_diffusion_sr/color_fix.py`.
 
@@ -128,7 +146,7 @@ snapshot_download(cache_dir=cache_dir,
 
 You need to set the related settings in the inference files.      
 
-**GPU Requirement:** We adopt sequence parallel to enable multi-GPU inference and 1 H100-80G can handle videos with 100x720x1280. 4 H100-80G further support 1080p and 2K videos. We will support more inference tricks like [Tile-VAE](https://github.com/pkuliyi2015/multidiffusion-upscaler-for-automatic1111) and [Progressive Aggregation Sampling](https://github.com/IceClear/StableSR) in the future.      
+**GPU Requirement:** We adopt sequence parallel to enable multi-GPU inference and 1 H100-80G can handle videos with 100x720x1280. 4 H100-80G further support 1080p and 2K videos (sp_size=4). We will support more inference tricks like [Tile-VAE](https://github.com/pkuliyi2015/multidiffusion-upscaler-for-automatic1111) and [Progressive Aggregation Sampling](https://github.com/IceClear/StableSR) in the future.      
 
 ```python
 # Take 3B SeedVR2 model inference script as an example

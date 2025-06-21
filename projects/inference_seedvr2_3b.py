@@ -34,6 +34,7 @@ else:
     print('Note!!!!!! Color fix is not avaliable!')
 from torchvision.transforms import Compose, Lambda, Normalize
 from torchvision.io.video import read_video
+from torchvision.io import read_image
 import argparse
 
 
@@ -60,6 +61,10 @@ from common.partition import partition_by_groups, partition_by_size
 def configure_sequence_parallel(sp_size):
     if sp_size > 1:
         init_sequence_parallel(sp_size)
+
+def is_image_file(filename):
+    image_exts = {'.jpg', '.jpeg', '.png', '.bmp', '.tiff', '.webp'}
+    return os.path.splitext(filename.lower())[1] in image_exts
 
 def configure_runner(sp_size):
     config_path = os.path.join('./configs_3b', 'main.yaml')
@@ -151,9 +156,9 @@ def generation_loop(runner, video_path='./test_videos', output_dir='./results', 
         prompts = {}
         video_list = os.listdir(video_path)
         for f in video_list:
-            if f.endswith(".mp4"):
-                original_videos.append(f)
-                prompts[f] = positive_text
+            # if f.endswith(".mp4"):
+            original_videos.append(f)
+            prompts[f] = positive_text
         print(f"Total prompts to be generated: {len(original_videos)}")
         return original_videos, prompts, negative_text
 
@@ -173,6 +178,8 @@ def generation_loop(runner, video_path='./test_videos', output_dir='./results', 
 
     def cut_videos(videos, sp_size):
         t = videos.size(1)
+        if t == 1:
+            return videos
         if t <= 4 * sp_size:
             print(f"Cut input video size: {videos.size()}")
             padding = [videos[:, -1].unsqueeze(1)] * (4 * sp_size - t + 1)
@@ -243,11 +250,18 @@ def generation_loop(runner, video_path='./test_videos', output_dir='./results', 
         cond_latents = []
         fps_lists = []
         for video in videos:
-            video, _, info = read_video(
-                   os.path.join(video_path, video), output_format="TCHW"
-                )
-            video = video / 255.0
-            fps_lists.append(info["video_fps"] if out_fps is None else out_fps)
+            if is_image_file(video):
+                video = read_image(
+                    os.path.join(video_path, video)
+                ).unsqueeze(0) / 255.0
+                if sp_size > 1:
+                    raise ValueError("Sp size should be set to 1 for image inputs!")
+            else:
+                video, _, info = read_video(
+                    os.path.join(video_path, video), output_format="TCHW"
+                    )
+                video = video / 255.0
+                fps_lists.append(info["video_fps"] if out_fps is None else out_fps)
             print(f"Read video size: {video.size()}")
             cond_latents.append(video_transform(video.to(get_device())))
 

@@ -132,7 +132,7 @@ def generation_step(runner, text_embeds_dict, cond_latents):
 
     return samples
 
-def generation_loop(runner, video_path='./test_videos', output_dir='./results', batch_size=1, cfg_scale=1.0, cfg_rescale=0.0, sample_steps=1, seed=666, res_h=1280, res_w=720, sp_size=1):
+def generation_loop(runner, video_path='./test_videos', output_dir='./results', batch_size=1, cfg_scale=1.0, cfg_rescale=0.0, sample_steps=1, seed=666, res_h=1280, res_w=720, sp_size=1, out_fps=None):
 
     def _build_pos_and_neg_prompt():
         # read positive prompt
@@ -241,13 +241,13 @@ def generation_loop(runner, video_path='./test_videos', output_dir='./results', 
     for videos, text_embeds in tqdm(zip(original_videos_local, positive_prompts_embeds)):
         # read condition latents
         cond_latents = []
+        fps_lists = []
         for video in videos:
-            video = (
-                read_video(
+            video, _, info = read_video(
                    os.path.join(video_path, video), output_format="TCHW"
-                )[0]
-                / 255.0
-            )
+                )
+            video = video / 255.0
+            fps_lists.append(info["video_fps"] if out_fps is None else out_fps)
             print(f"Read video size: {video.size()}")
             cond_latents.append(video_transform(video.to(get_device())))
 
@@ -273,8 +273,8 @@ def generation_loop(runner, video_path='./test_videos', output_dir='./results', 
 
         # dump samples to the output directory
         if get_sequence_parallel_rank() == 0:
-            for path, input, sample, ori_length in zip(
-                videos, input_videos, samples, ori_lengths
+            for path, input, sample, ori_length, save_fps in zip(
+                videos, input_videos, samples, ori_lengths, fps_lists
             ):
                 if ori_length < sample.shape[0]:
                     sample = sample[:ori_length]
@@ -303,7 +303,7 @@ def generation_loop(runner, video_path='./test_videos', output_dir='./results', 
                     mediapy.write_image(filename, sample.squeeze(0))
                 else:
                     mediapy.write_video(
-                        filename, sample, fps=24
+                        filename, sample, fps=save_fps
                     )
         gc.collect()
         torch.cuda.empty_cache()
@@ -316,6 +316,7 @@ if __name__ == "__main__":
     parser.add_argument("--res_h", type=int, default=720)
     parser.add_argument("--res_w", type=int, default=1280)
     parser.add_argument("--sp_size", type=int, default=1)
+    parser.add_argument("--out_fps", type=float, default=None)
     args = parser.parse_args()
 
     runner = configure_runner(args.sp_size)

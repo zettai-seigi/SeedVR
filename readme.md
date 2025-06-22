@@ -141,6 +141,11 @@ To use color fix, put the file [color_fix.py](https://github.com/pkuliyi2015/sd-
 
 
 2️⃣  Download pretrained checkpoint
+
+run the download_model.py
+
+or
+
 ```python
 
 # Take SeedVR2-3B as an example.

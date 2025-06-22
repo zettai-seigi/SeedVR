@@ -100,8 +100,9 @@ We sincerely thank all contributors from the open community for their valuable s
 ## 🔥 Quick Start
 
 1️⃣  Set up environment
+
 ```bash
-git clone https://github.com/bytedance-seed/SeedVR.git
+git clone https://github.com/ByteDance-Seed/SeedVR.git
 cd SeedVR
 conda create -n seedvr python=3.10 -y
 conda activate seedvr
@@ -116,6 +117,25 @@ If you encounter problems when installing apex from source, we provide two pre-b
 ```bash
 pip install apex-0.1-cp310-cp310-linux_x86_64.whl
 ```
+
+### 🍎 macOS Setup
+
+For macOS users with Apple Silicon (M1/M2/M3 chips), follow these steps. This version uses MPS for acceleration and includes necessary fallbacks for compatibility.
+
+```bash
+git clone https://github.com/zettai-seigi/SeedVR.git
+cd SeedVR
+conda create -n seedvr python=3.10 -y
+conda activate seedvr
+
+# Install PyTorch with MPS support
+pip install torch torchvision torchaudio
+
+# Install macOS-specific requirements
+pip install -r requirements_macos.txt
+```
+**Note:** You do not need to install `flash_attn` or `apex` on macOS, as compatible shims are included.
+
 
 To use color fix, put the file [color_fix.py](https://github.com/pkuliyi2015/sd-webui-stablesr/blob/master/srmodule/colorfix.py) to `./projects/video_diffusion_sr/color_fix.py`.
 
@@ -151,6 +171,14 @@ You need to set the related settings in the inference files.
 ```python
 # Take 3B SeedVR2 model inference script as an example
 torchrun --nproc-per-node=NUM_GPUS projects/inference_seedvr2_3b.py --video_path INPUT_FOLDER --output_dir OUTPUT_FOLDER --seed SEED_NUM --res_h OUTPUT_HEIGHT --res_w OUTPUT_WIDTH --sp_size NUM_SP
+```
+
+### 🍎 macOS Inference
+
+For macOS, use the dedicated inference script. It runs on a single device (CPU or MPS) and does not support sequence parallelism (`sp_size` is ignored).
+
+```bash
+python projects/inference_seedvr2_3b_macos.py --video_path INPUT_FOLDER --output_dir OUTPUT_FOLDER --seed SEED_NUM --res_h OUTPUT_HEIGHT --res_w OUTPUT_WIDTH
 ```
 
 

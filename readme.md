@@ -185,7 +185,7 @@ For macOS, use the dedicated inference script. It runs on a single device (CPU o
 ```bash
 python projects/inference_seedvr2_3b_macos.py --video_path INPUT_FOLDER --output_dir OUTPUT_FOLDER --seed SEED_NUM --res_h OUTPUT_HEIGHT --res_w OUTPUT_WIDTH
 ```
-
+or run the gradio_ui.py
 
 ## ✍️ Citation
 

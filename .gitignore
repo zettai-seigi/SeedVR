@@ -24,3 +24,6 @@ __pycache__
 /test_videos
 /results
 /ckpts
+.cursorindexingignore
+.specstory/
+outputs/
